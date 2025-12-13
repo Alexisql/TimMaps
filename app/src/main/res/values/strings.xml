@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TimMaps</string>
+
+    <!--Login -->
+    <string name="username_hint">Usuario</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button_text">Iniciar Sesion</string>
+    <string name="message_edittext_empty">Por favor, complete todos los campos</string>
 </resources>

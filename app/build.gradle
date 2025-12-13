@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -28,6 +29,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -35,6 +40,19 @@ dependencies {
     //Dagger
     implementation(libs.dagger)
     annotationProcessor(libs.dagger.compiler)
+
+    //Firebase
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore
+
+    //Lifecycle
+    implementation libs.viewmodel
+    implementation libs.livedata
+
+    //Rx
+    implementation libs.rxjava
+    implementation libs.rxandroid
     
     implementation libs.appcompat
     implementation libs.material
