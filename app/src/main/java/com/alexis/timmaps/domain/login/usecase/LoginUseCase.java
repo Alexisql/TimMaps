@@ -1,7 +1,7 @@
-package com.alexis.timmaps.domain.usecase;
+package com.alexis.timmaps.domain.login.usecase;
 
-import com.alexis.timmaps.domain.model.User;
-import com.alexis.timmaps.domain.repository.IAuthRepository;
+import com.alexis.timmaps.domain.login.model.User;
+import com.alexis.timmaps.domain.login.repository.IAuthRepository;
 
 import javax.inject.Inject;
 

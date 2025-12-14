@@ -1,4 +1,4 @@
-package com.alexis.timmaps.domain.model;
+package com.alexis.timmaps.domain.login.model;
 
 public class User {
 

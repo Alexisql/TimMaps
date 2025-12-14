@@ -1,6 +1,6 @@
 package com.alexis.timmaps.ui.login;
 
-import com.alexis.timmaps.domain.model.User;
+import com.alexis.timmaps.domain.login.model.User;
 
 public class LoginState {
 

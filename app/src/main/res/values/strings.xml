@@ -6,4 +6,12 @@
     <string name="password_hint">Contraseña</string>
     <string name="login_button_text">Iniciar Sesion</string>
     <string name="message_edittext_empty">Por favor, complete todos los campos</string>
+
+    <!--Main -->
+    <string name="read_information_label">Leer Información</string>
+    <string name="observation_title">Observación: </string>
+    <string name="label_title">etiqueta1d: </string>
+    <string name="label_lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="title_scanner">Scaneando...</string>
+
 </resources>

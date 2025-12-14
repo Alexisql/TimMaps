@@ -1,6 +1,6 @@
-package com.alexis.timmaps.domain.repository;
+package com.alexis.timmaps.domain.login.repository;
 
-import com.alexis.timmaps.domain.model.User;
+import com.alexis.timmaps.domain.login.model.User;
 
 import io.reactivex.rxjava3.core.Single;
 

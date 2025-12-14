@@ -1,9 +1,9 @@
-package com.alexis.timmaps.data.datasource.repository;
+package com.alexis.timmaps.data.remote.login.repository;
 
-import com.alexis.timmaps.data.datasource.mapper.UserMapper;
-import com.alexis.timmaps.data.datasource.model.UserDto;
-import com.alexis.timmaps.domain.model.User;
-import com.alexis.timmaps.domain.repository.IAuthRepository;
+import com.alexis.timmaps.data.remote.login.mapper.UserMapper;
+import com.alexis.timmaps.data.remote.login.model.UserDto;
+import com.alexis.timmaps.domain.login.model.User;
+import com.alexis.timmaps.domain.login.repository.IAuthRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 

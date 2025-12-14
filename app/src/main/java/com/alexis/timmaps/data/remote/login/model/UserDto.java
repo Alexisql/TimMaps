@@ -1,4 +1,4 @@
-package com.alexis.timmaps.data.datasource.model;
+package com.alexis.timmaps.data.remote.login.model;
 
 public class UserDto {
     private String username;

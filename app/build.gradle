@@ -53,6 +53,12 @@ dependencies {
     //Rx
     implementation libs.rxjava
     implementation libs.rxandroid
+
+    //Volley
+    implementation libs.volley
+
+    //ZXing
+    implementation libs.zxing
     
     implementation libs.appcompat
     implementation libs.material

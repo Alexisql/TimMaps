@@ -3,12 +3,10 @@ package com.alexis.timmaps.di;
 import android.app.Application;
 
 import com.alexis.timmaps.di.module.AppModule;
-import com.alexis.timmaps.di.module.FirebaseModule;
 import com.alexis.timmaps.di.module.RepositoryModule;
-import com.alexis.timmaps.di.module.RxModule;
 import com.alexis.timmaps.di.module.viewmodel.ViewModelModule;
 import com.alexis.timmaps.ui.login.LoginActivity;
-import com.alexis.timmaps.ui.main.MainActivity;
+import com.alexis.timmaps.ui.processqr.ProcessQrActivity;
 
 import javax.inject.Singleton;
 
@@ -19,8 +17,6 @@ import dagger.Component;
 @Component(modules = {
         AppModule.class,
         RepositoryModule.class,
-        FirebaseModule.class,
-        RxModule.class,
         ViewModelModule.class
 })
 public interface AppComponent {
@@ -35,5 +31,5 @@ public interface AppComponent {
 
     void inject(LoginActivity activity);
 
-    void inject(MainActivity activity);
+    void inject(ProcessQrActivity activity);
 }

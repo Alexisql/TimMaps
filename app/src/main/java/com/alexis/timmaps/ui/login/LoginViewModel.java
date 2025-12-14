@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.alexis.timmaps.di.module.Qualifier;
-import com.alexis.timmaps.domain.usecase.LoginUseCase;
+import com.alexis.timmaps.domain.login.usecase.LoginUseCase;
 
 import javax.inject.Inject;
 import javax.inject.Named;

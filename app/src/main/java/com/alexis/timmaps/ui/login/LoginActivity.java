@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.alexis.timmaps.R;
 import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityLoginBinding;
-import com.alexis.timmaps.ui.main.MainActivity;
+import com.alexis.timmaps.ui.processqr.ProcessQrActivity;
 
 import javax.inject.Inject;
 
@@ -26,14 +26,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ((TimMapsApp) getApplication()).getAppComponent().inject(this);
+
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         viewModel = new ViewModelProvider(this, viewModelFactory).get(LoginViewModel.class);
 
         setupListeners();
         viewModel.getState().observe(this, this::observeViewModel);
-
     }
 
     private void setupListeners() {
@@ -54,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
             binding.progressBar.setVisibility(View.VISIBLE);
         } else if (state instanceof LoginState.Success) {
             binding.progressBar.setVisibility(View.GONE);
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, ProcessQrActivity.class));
             finish();
         } else if (state instanceof LoginState.Error) {
             binding.loginFormContainer.setVisibility(View.VISIBLE);
