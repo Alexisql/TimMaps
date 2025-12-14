@@ -58,10 +58,9 @@ public class ProcessQrActivity extends AppCompatActivity {
         @Override
         public void barcodeResult(BarcodeResult result) {
             if (result.getText() != null) {
-                binding.zxingBarcodeScanner.pause();
                 String qrData = encodeToBase64(result.getText());
                 binding.etCodeQr.setText(qrData);
-                binding.zxingBarcodeScanner.setVisibility(View.GONE);
+                closeScanner();
                 viewModel.processQr(qrData);
             }
         }
@@ -70,6 +69,10 @@ public class ProcessQrActivity extends AppCompatActivity {
     private void setupListeners() {
         binding.ivCameraIcon.setOnClickListener(v -> {
             launchScanner();
+        });
+
+        binding.ivCloseScanner.setOnClickListener(v -> {
+            closeScanner();
         });
     }
 
@@ -88,9 +91,14 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void launchScanner() {
-        binding.zxingBarcodeScanner.setVisibility(View.VISIBLE);
+        binding.processQrFormContainer.setVisibility(View.VISIBLE);
         binding.zxingBarcodeScanner.resume();
         binding.zxingBarcodeScanner.decodeContinuous(callback);
+    }
+
+    private void closeScanner() {
+        binding.zxingBarcodeScanner.pause();
+        binding.processQrFormContainer.setVisibility(View.GONE);
     }
 
     private String encodeToBase64(String data) {
