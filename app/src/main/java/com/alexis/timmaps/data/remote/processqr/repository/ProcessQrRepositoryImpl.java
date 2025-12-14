@@ -6,6 +6,8 @@ import com.alexis.timmaps.data.remote.processqr.service.ProcessQrService;
 import com.alexis.timmaps.domain.processqr.model.ProcessQr;
 import com.alexis.timmaps.domain.processqr.repository.IProcessQrRepository;
 
+import org.json.JSONException;
+
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Single;
@@ -29,6 +31,8 @@ public class ProcessQrRepositoryImpl implements IProcessQrRepository {
                             String data = response.getString("data");
                             QrResponse qrResponse = new QrResponse(correcto, data);
                             emitter.onSuccess(QrMapper.toDomain(qrResponse));
+                        } catch (JSONException exception) {
+                            emitter.onError(new IllegalArgumentException("Estructura Incorrecta", exception));
                         } catch (Exception e) {
                             emitter.onError(e);
                         }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -76,7 +77,7 @@ public class ProcessQrActivity extends AppCompatActivity {
         if (state instanceof ProcessQrState.Success) {
             Log.e("Process QR", ((ProcessQrState.Success) state).getQrData().toString());
         } else if (state instanceof ProcessQrState.Error) {
-            Log.e("Error", ((ProcessQrState.Error) state).getMessage());
+            Toast.makeText(this, ((ProcessQrState.Error) state).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
