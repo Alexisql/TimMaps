@@ -11,6 +11,4 @@ public interface IProcessQrRepository {
     Flowable<List<DataQr>> getAll();
 
     Completable insert(DataQr dataQr);
-
-    Completable deleteAll();
 }

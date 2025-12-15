@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.alexis.timmaps.di.module.Qualifier;
+import com.alexis.timmaps.di.module.Qualifiers;
+import com.alexis.timmaps.domain.logout.usecase.LogoutUseCase;
 import com.alexis.timmaps.domain.processqr.model.DataQr;
-import com.alexis.timmaps.domain.processqr.usecase.DeleteDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.GetDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.InsertDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.ReadQrUseCase;
@@ -24,7 +24,7 @@ public class ProcessQrViewModel extends ViewModel {
 
     private final ReadQrUseCase readUseCase;
     private final InsertDataQrUseCase insertUseCase;
-    private final DeleteDataQrUseCase deleteUseCase;
+    private final LogoutUseCase logoutUseCase;
     private final GetDataQrUseCase getDataUseCase;
     private final SyncBackupUseCase syncBackupUseCase;
     private final Scheduler ioScheduler;
@@ -36,14 +36,14 @@ public class ProcessQrViewModel extends ViewModel {
     @Inject
     public ProcessQrViewModel(ReadQrUseCase readUseCase,
                               InsertDataQrUseCase insertUseCase,
-                              DeleteDataQrUseCase deleteUseCase,
+                              LogoutUseCase logoutUseCase,
                               GetDataQrUseCase getDataUseCase,
                               SyncBackupUseCase syncBackupUseCase,
-                              @Named(Qualifier.IO_SCHEDULER) Scheduler ioScheduler,
-                              @Named(Qualifier.MAIN_SCHEDULER) Scheduler mainScheduler) {
+                              @Named(Qualifiers.IO_SCHEDULER) Scheduler ioScheduler,
+                              @Named(Qualifiers.MAIN_SCHEDULER) Scheduler mainScheduler) {
         this.readUseCase = readUseCase;
         this.insertUseCase = insertUseCase;
-        this.deleteUseCase = deleteUseCase;
+        this.logoutUseCase = logoutUseCase;
         this.getDataUseCase = getDataUseCase;
         this.ioScheduler = ioScheduler;
         this.mainScheduler = mainScheduler;
@@ -101,10 +101,10 @@ public class ProcessQrViewModel extends ViewModel {
         );
     }
 
-    public void deleteAllQrs() {
+    public void logout() {
         state.setValue(ProcessQrState.loading());
         disposables.add(
-                deleteUseCase.execute()
+                logoutUseCase.execute()
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(

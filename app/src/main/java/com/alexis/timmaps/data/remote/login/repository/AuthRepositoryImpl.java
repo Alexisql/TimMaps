@@ -36,9 +36,7 @@ public class AuthRepositoryImpl implements IAuthRepository {
     private Completable signInAnonymously() {
         return Completable.create(emitter -> {
             auth.signInAnonymously()
-                    .addOnSuccessListener(result -> {
-                        emitter.onComplete();
-                    })
+                    .addOnSuccessListener(result -> emitter.onComplete())
                     .addOnFailureListener(emitter::onError);
         });
     }

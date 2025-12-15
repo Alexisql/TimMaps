@@ -1,5 +1,6 @@
 package com.alexis.timmaps.ui.processqr;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Base64;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -19,7 +21,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.alexis.timmaps.R;
 import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMainBinding;
+import com.alexis.timmaps.databinding.DialogConfirmLogoutBinding;
+import com.alexis.timmaps.ui.login.LoginActivity;
 import com.alexis.timmaps.ui.processqr.adapter.DataQrAdapter;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -97,6 +102,10 @@ public class ProcessQrActivity extends AppCompatActivity {
         binding.ivCloseScanner.setOnClickListener(v -> {
             closeScanner();
         });
+
+        binding.ivLogout.setOnClickListener(v -> {
+            showLogoutConfirmationDialog();
+        });
     }
 
     private void observeViewModel(ProcessQrState state) {
@@ -171,5 +180,30 @@ public class ProcessQrActivity extends AppCompatActivity {
     private String encodeToBase64(String data) {
         byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
         return Base64.encodeToString(dataBytes, Base64.NO_WRAP);
+    }
+
+    private void showLogoutConfirmationDialog() {
+        DialogConfirmLogoutBinding bindingLogout = DialogConfirmLogoutBinding.inflate(getLayoutInflater());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setView(bindingLogout.getRoot());
+
+        final AlertDialog dialog = builder.create();
+
+        bindingLogout.buttonCancel.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        bindingLogout.buttonConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            logout();
+        });
+
+        dialog.show();
+    }
+
+    private void logout() {
+        viewModel.logout();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 }

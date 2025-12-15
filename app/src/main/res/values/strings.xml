@@ -14,4 +14,11 @@
     <string name="label_lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="title_scanner">Scaneando...</string>
 
+    <!-- Logout -->
+    <string name="logout">Cerrar Sesión</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm_logout_title">¿Cerrar Sesión?</string>
+    <string name="confirm_logout_message">¿Estás seguro de que quieres cerrar la sesión? Se eliminarán los datos almacenados.</string>
+
+
 </resources>

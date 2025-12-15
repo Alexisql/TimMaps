@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.alexis.timmaps.di.module.Qualifier;
+import com.alexis.timmaps.di.module.Qualifiers;
 import com.alexis.timmaps.domain.login.usecase.LoginUseCase;
 
 import javax.inject.Inject;
@@ -24,8 +24,8 @@ public class LoginViewModel extends ViewModel {
 
     @Inject
     public LoginViewModel(LoginUseCase loginUseCase,
-                          @Named(Qualifier.IO_SCHEDULER) Scheduler ioScheduler,
-                          @Named(Qualifier.MAIN_SCHEDULER) Scheduler mainScheduler) {
+                          @Named(Qualifiers.IO_SCHEDULER) Scheduler ioScheduler,
+                          @Named(Qualifiers.MAIN_SCHEDULER) Scheduler mainScheduler) {
         this.loginUseCase = loginUseCase;
         this.ioScheduler = ioScheduler;
         this.mainScheduler = mainScheduler;

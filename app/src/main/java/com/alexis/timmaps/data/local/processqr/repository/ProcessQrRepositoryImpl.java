@@ -40,8 +40,4 @@ public class ProcessQrRepositoryImpl implements IProcessQrRepository {
         return backupDao.insert(DataQrMapper.toEntity(dataQr));
     }
 
-    @Override
-    public Completable deleteAll() {
-        return backupDao.deleteAll();
-    }
 }

@@ -2,6 +2,8 @@ package com.alexis.timmaps.data.local.processqr.dao;
 
 import static com.alexis.timmaps.data.local.PersistenceContract.Backup;
 
+import static io.reactivex.rxjava3.core.BackpressureStrategy.*;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,7 +32,7 @@ public class BackupDao {
     }
 
     public Flowable<List<BackupEntity>> getAll() {
-        return databaseChanges.toFlowable(io.reactivex.rxjava3.core.BackpressureStrategy.LATEST)
+        return databaseChanges.toFlowable(LATEST)
                 .flatMap(ignored -> Flowable.fromCallable(() -> {
                     SQLiteDatabase db = appDataBase.getReadableDatabase();
                     List<BackupEntity> backup = new ArrayList<>();
@@ -61,7 +63,7 @@ public class BackupDao {
         });
     }
 
-    public Completable deleteAll() {
+    public Completable deleteBackup() {
         return Completable.fromAction(() -> {
             SQLiteDatabase db = appDataBase.getWritableDatabase();
             db.delete(Backup.TABLE_NAME, null, null);

@@ -40,14 +40,14 @@ public class AppModule {
 
     @Provides
     @Singleton
-    @Named(Qualifier.IO_SCHEDULER)
+    @Named(Qualifiers.IO_SCHEDULER)
     Scheduler provideIoScheduler() {
         return Schedulers.io();
     }
 
     @Provides
     @Singleton
-    @Named(Qualifier.MAIN_SCHEDULER)
+    @Named(Qualifiers.MAIN_SCHEDULER)
     Scheduler provideMainScheduler() {
         return AndroidSchedulers.mainThread();
     }

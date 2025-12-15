@@ -31,7 +31,7 @@ public class SyncBackupRepositoryImpl implements ISyncRepository {
             firestore.collection(COLLECTION_BACKUP_FIREBASE)
                     .document(userUid)
                     .set(syncDocument, SetOptions.merge())
-                    .addOnSuccessListener(documentReference -> emitter.onComplete())
+                    .addOnSuccessListener(aVoid -> emitter.onComplete())
                     .addOnFailureListener(emitter::onError);
         });
     }
