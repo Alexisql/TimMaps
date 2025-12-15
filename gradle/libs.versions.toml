@@ -17,6 +17,8 @@ volley = "1.2.1"
 zxing = "4.3.0"
 sqlite = "2.6.2"
 maps = "19.2.0"
+location = "21.3.0"
+mapsUtils = "2.2.0"
 testing = "2.2.0"
 mockito-core = "5.21.0"
 mockito-inline = "5.2.0"
@@ -42,6 +44,8 @@ volley = { group = "com.android.volley", name = "volley", version.ref = "volley"
 zxing = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
 sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "sqlite" }
 maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "maps" }
+location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "location"}
+maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version.ref = "mapsUtils" }
 testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "testing" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito-inline" }

@@ -9,10 +9,15 @@ import androidx.recyclerview.widget.ListAdapter;
 import com.alexis.timmaps.databinding.ItemDataQrBinding;
 import com.alexis.timmaps.domain.processqr.model.DataQr;
 
+import java.util.function.Consumer;
+
 public class DataQrAdapter extends ListAdapter<DataQr, DataQrViewHolder> {
 
-    public DataQrAdapter() {
+    private final Consumer<DataQr> onMapClick;
+
+    public DataQrAdapter(Consumer<DataQr> onMapClick) {
         super(new DataQrDiffUtil());
+        this.onMapClick = onMapClick;
     }
 
     @NonNull
@@ -29,6 +34,6 @@ public class DataQrAdapter extends ListAdapter<DataQr, DataQrViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DataQrViewHolder holder, int position) {
         DataQr currentDataQr = getItem(position);
-        holder.bind(currentDataQr);
+        holder.bind(currentDataQr, onMapClick);
     }
 }

@@ -6,6 +6,7 @@ import com.alexis.timmaps.di.module.AppModule;
 import com.alexis.timmaps.di.module.RepositoryModule;
 import com.alexis.timmaps.di.module.viewmodel.ViewModelModule;
 import com.alexis.timmaps.ui.login.LoginActivity;
+import com.alexis.timmaps.ui.maps.MapsActivity;
 import com.alexis.timmaps.ui.processqr.ProcessQrActivity;
 
 import javax.inject.Singleton;
@@ -32,4 +33,6 @@ public interface AppComponent {
     void inject(LoginActivity activity);
 
     void inject(ProcessQrActivity activity);
+
+    void inject(MapsActivity activity);
 }

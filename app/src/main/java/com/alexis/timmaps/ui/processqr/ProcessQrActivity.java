@@ -1,5 +1,6 @@
 package com.alexis.timmaps.ui.processqr;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -23,7 +24,10 @@ import com.alexis.timmaps.R;
 import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMainBinding;
 import com.alexis.timmaps.databinding.DialogConfirmLogoutBinding;
+import com.alexis.timmaps.domain.processqr.model.DataQr;
 import com.alexis.timmaps.ui.login.LoginActivity;
+import com.alexis.timmaps.ui.maps.Constants;
+import com.alexis.timmaps.ui.maps.MapsActivity;
 import com.alexis.timmaps.ui.processqr.adapter.DataQrAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.zxing.BarcodeFormat;
@@ -41,6 +45,7 @@ public class ProcessQrActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ProcessQrViewModel viewModel;
     private DataQrAdapter dataQrAdapter;
+    private DataQr location;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -73,13 +78,22 @@ public class ProcessQrActivity extends AppCompatActivity {
         binding.zxingBarcodeScanner.pause();
     }
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     startScanner();
                 } else {
-                    Toast.makeText(this, "Permiso de cámara denegado.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "El permiso de cámara es obligatorio para escanear el código QR.", Toast.LENGTH_LONG).show();
                     closeScanner();
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestLocationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    navigateToMap(location);
+                } else {
+                    Toast.makeText(this, "El permiso de ubicación es necesario para ver la ruta.", Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -96,7 +110,7 @@ public class ProcessQrActivity extends AppCompatActivity {
 
     private void setupListeners() {
         binding.ivCameraIcon.setOnClickListener(v -> {
-            launchScanner();
+            checkAndRequestCameraPermission();
         });
 
         binding.ivCloseScanner.setOnClickListener(v -> {
@@ -157,7 +171,7 @@ public class ProcessQrActivity extends AppCompatActivity {
 
             case OPERATION_SUCCESS:
                 showRecycler();
-                clearEditext();
+                clearEditText();
                 Toast.makeText(this, state.successMessage, Toast.LENGTH_SHORT).show();
                 break;
 
@@ -169,7 +183,10 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        dataQrAdapter = new DataQrAdapter();
+        dataQrAdapter = new DataQrAdapter(dataQr -> {
+            location = dataQr;
+            checkAndRequestLocationPermission(location);
+        });
         binding.rvItemList.setLayoutManager(new LinearLayoutManager(this));
         binding.rvItemList.setAdapter(dataQrAdapter);
     }
@@ -178,14 +195,6 @@ public class ProcessQrActivity extends AppCompatActivity {
         binding.zxingBarcodeScanner.setDecoderFactory(
                 new DefaultDecoderFactory(Collections.singletonList(BarcodeFormat.QR_CODE)));
         binding.zxingBarcodeScanner.setStatusText(getString(R.string.title_scanner));
-    }
-
-    private void launchScanner() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            startScanner();
-        } else {
-            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA);
-        }
     }
 
     private void startScanner() {
@@ -209,7 +218,7 @@ public class ProcessQrActivity extends AppCompatActivity {
         binding.rvItemList.setVisibility(View.GONE);
     }
 
-    private void clearEditext(){
+    private void clearEditText() {
         binding.etCodeQr.setText("");
     }
 
@@ -236,5 +245,28 @@ public class ProcessQrActivity extends AppCompatActivity {
         viewModel.logout();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
+    }
+
+    private void checkAndRequestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            startScanner();
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void checkAndRequestLocationPermission(DataQr location) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            navigateToMap(location);
+        } else {
+            requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void navigateToMap(DataQr dataQr) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra(Constants.EXTRA_LAT, dataQr.getLat());
+        intent.putExtra(Constants.EXTRA_LON, dataQr.getLon());
+        startActivity(intent);
     }
 }
