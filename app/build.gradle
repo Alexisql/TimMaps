@@ -1,5 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
 }
 
 android {
@@ -15,27 +25,75 @@ android {
         versionCode 1
         versionName "1.0"
 
+        manifestPlaceholders["mapsApiKey"] = localProperties.getProperty("MAPS_API_KEY", "DEFAULT_API_KEY")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            buildConfigField "String", "MAPS_API_KEY", "\"${localProperties.getProperty('MAPS_API_KEY')}\""
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "MAPS_API_KEY", "\"${localProperties.getProperty('MAPS_API_KEY')}\""
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
 }
 
 dependencies {
+
+    //Dagger
+    implementation(libs.dagger)
+    annotationProcessor(libs.dagger.compiler)
+
+    //Firebase
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore
+
+    //Lifecycle
+    implementation libs.viewmodel
+    implementation libs.livedata
+
+    //Rx
+    implementation libs.rxjava
+    implementation libs.rxandroid
+
+    //Volley
+    implementation libs.volley
+
+    //ZXing
+    implementation libs.zxing
+
+    //Sqlite
+    implementation libs.sqlite
+
+    //Maps
+    implementation libs.maps
+    implementation libs.location
+    implementation libs.maps.utils
+
+    //Test
+    testImplementation libs.junit
+    testImplementation libs.testing
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.inline
+
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
-    testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 }
