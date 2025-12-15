@@ -10,6 +10,9 @@ import com.alexis.timmaps.domain.processqr.usecase.DeleteDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.GetDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.InsertDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.ReadQrUseCase;
+import com.alexis.timmaps.domain.processqr.usecase.SyncBackupUseCase;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,6 +26,7 @@ public class ProcessQrViewModel extends ViewModel {
     private final InsertDataQrUseCase insertUseCase;
     private final DeleteDataQrUseCase deleteUseCase;
     private final GetDataQrUseCase getDataUseCase;
+    private final SyncBackupUseCase syncBackupUseCase;
     private final Scheduler ioScheduler;
     private final Scheduler mainScheduler;
 
@@ -34,6 +38,7 @@ public class ProcessQrViewModel extends ViewModel {
                               InsertDataQrUseCase insertUseCase,
                               DeleteDataQrUseCase deleteUseCase,
                               GetDataQrUseCase getDataUseCase,
+                              SyncBackupUseCase syncBackupUseCase,
                               @Named(Qualifier.IO_SCHEDULER) Scheduler ioScheduler,
                               @Named(Qualifier.MAIN_SCHEDULER) Scheduler mainScheduler) {
         this.readUseCase = readUseCase;
@@ -42,6 +47,7 @@ public class ProcessQrViewModel extends ViewModel {
         this.getDataUseCase = getDataUseCase;
         this.ioScheduler = ioScheduler;
         this.mainScheduler = mainScheduler;
+        this.syncBackupUseCase = syncBackupUseCase;
         getAllQr();
     }
 
@@ -71,8 +77,10 @@ public class ProcessQrViewModel extends ViewModel {
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
-                                qrList ->
-                                        state.setValue(ProcessQrState.qrListLoaded(qrList)),
+                                qrList -> {
+                                    state.setValue(ProcessQrState.qrListLoaded(qrList));
+                                    syncBackup(qrList);
+                                },
                                 throwable ->
                                         state.setValue(ProcessQrState.error(getMessageError(throwable)))
                         )
@@ -105,6 +113,22 @@ public class ProcessQrViewModel extends ViewModel {
                                         state.setValue(ProcessQrState.error(getMessageError(throwable)))
                         )
         );
+    }
+
+    private void syncBackup(List<DataQr> backup) {
+        int backupSize = backup.size();
+        if (backupSize > 0 && backupSize % 5 == 0) {
+            disposables.add(
+                    syncBackupUseCase.execute(backup)
+                            .subscribeOn(ioScheduler)
+                            .observeOn(mainScheduler)
+                            .subscribe(
+                                    () -> state.setValue(ProcessQrState.operationSuccess("Sincronizacion completada.")),
+                                    throwable ->
+                                            state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                            )
+            );
+        }
     }
 
     private String getMessageError(Throwable throwable) {

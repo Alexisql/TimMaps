@@ -1,11 +1,15 @@
 package com.alexis.timmaps.ui.processqr;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -56,6 +60,22 @@ public class ProcessQrActivity extends AppCompatActivity {
         setupListeners();
         viewModel.getState().observe(this, this::observeViewModel);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        binding.zxingBarcodeScanner.pause();
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    startScanner();
+                } else {
+                    Toast.makeText(this, "Permiso de cámara denegado.", Toast.LENGTH_LONG).show();
+                    closeScanner();
+                }
+            });
 
     private final BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -120,6 +140,14 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void launchScanner() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            startScanner();
+        } else {
+            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA);
+        }
+    }
+
+    private void startScanner() {
         binding.processQrFormContainer.setVisibility(View.VISIBLE);
         binding.zxingBarcodeScanner.resume();
         binding.zxingBarcodeScanner.decodeContinuous(callback);
