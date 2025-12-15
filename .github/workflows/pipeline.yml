@@ -19,7 +19,7 @@ jobs:
           cache: 'gradle'
 
       - name: Build
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew assembleDebug
 
       - name: Unit Test
         run: ./gradlew testDebugUnitTest
