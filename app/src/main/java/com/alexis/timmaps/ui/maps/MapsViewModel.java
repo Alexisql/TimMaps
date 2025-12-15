@@ -38,7 +38,6 @@ public class MapsViewModel extends ViewModel {
     }
 
     public void getRoute(Location origen, Location destination) {
-        state.setValue(new MapsState.Loading());
         disposables.add(
                 mapsUseCase.execute(origen, destination)
                         .subscribeOn(ioScheduler)

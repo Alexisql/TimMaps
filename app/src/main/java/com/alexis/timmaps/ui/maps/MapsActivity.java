@@ -65,8 +65,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void observeViewModel(MapsState state) {
-        if (state instanceof MapsState.Loading) {
-        } else if (state instanceof MapsState.Success) {
+        if (state instanceof MapsState.Success) {
             drawRoute(((MapsState.Success) state).route);
         } else if (state instanceof MapsState.Error) {
             Toast.makeText(this, ((MapsState.Error) state).getMessage(), Toast.LENGTH_SHORT).show();
