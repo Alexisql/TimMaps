@@ -13,6 +13,7 @@
     <string name="label_title">etiqueta1d: </string>
     <string name="label_lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="title_scanner">Scaneando...</string>
+    <string name="save_button_text">Guardar</string>
 
     <!-- Logout -->
     <string name="logout">Cerrar Sesión</string>

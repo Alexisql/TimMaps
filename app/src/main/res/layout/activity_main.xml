@@ -79,6 +79,17 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/save_button_text"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tf_code_qr" />
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_camera_icon"
         android:layout_width="50dp"
@@ -98,7 +109,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tf_code_qr"
+        app:layout_constraintTop_toBottomOf="@id/save_button"
         tools:listitem="@layout/item_data_qr" />
 
     <ProgressBar

@@ -1,5 +1,7 @@
 package com.alexis.timmaps.data.remote.processqr.repository;
 
+import android.util.Base64;
+
 import com.alexis.timmaps.data.remote.processqr.mapper.QrMapper;
 import com.alexis.timmaps.data.remote.processqr.model.QrResponse;
 import com.alexis.timmaps.data.remote.processqr.service.ProcessQrService;
@@ -7,6 +9,8 @@ import com.alexis.timmaps.domain.processqr.model.Qr;
 import com.alexis.timmaps.domain.processqr.repository.IReadQrRepository;
 
 import org.json.JSONException;
+
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 
@@ -24,7 +28,7 @@ public class ReadQrRepositoryImpl implements IReadQrRepository {
     @Override
     public Single<Qr> readQr(String codeQr) {
         return Single.create(emitter -> {
-            service.validateCodeQr(codeQr,
+            service.validateCodeQr(encodeToBase64(codeQr),
                     response -> {
                         try {
                             String correcto = response.getString("Correcto");
@@ -40,5 +44,10 @@ public class ReadQrRepositoryImpl implements IReadQrRepository {
                     emitter::onError
             );
         });
+    }
+
+    private String encodeToBase64(String data) {
+        byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
+        return Base64.encodeToString(dataBytes, Base64.NO_WRAP);
     }
 }

@@ -3,7 +3,8 @@ package com.alexis.timmaps.ui.processqr;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Base64;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,8 +31,8 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -86,8 +87,7 @@ public class ProcessQrActivity extends AppCompatActivity {
         @Override
         public void barcodeResult(BarcodeResult result) {
             if (result.getText() != null) {
-                String qrData = encodeToBase64(result.getText());
-                binding.etCodeQr.setText(qrData);
+                String qrData = result.getText();
                 closeScanner();
                 viewModel.processQr(qrData);
             }
@@ -105,6 +105,37 @@ public class ProcessQrActivity extends AppCompatActivity {
 
         binding.ivLogout.setOnClickListener(v -> {
             showLogoutConfirmationDialog();
+        });
+
+        binding.saveButton.setOnClickListener(v -> {
+            viewModel.processQr(String.valueOf(binding.etCodeQr.getText()));
+        });
+
+        if (Objects.requireNonNull(binding.etCodeQr.getText()).length() > 0) {
+            binding.saveButton.setVisibility(View.VISIBLE);
+        }
+
+        binding.etCodeQr.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null && s.length() > 0) {
+                    binding.saveButton.setVisibility(View.VISIBLE);
+                } else {
+                    binding.saveButton.setVisibility(View.GONE);
+                }
+            }
+
         });
     }
 
@@ -126,6 +157,7 @@ public class ProcessQrActivity extends AppCompatActivity {
 
             case OPERATION_SUCCESS:
                 showRecycler();
+                clearEditext();
                 Toast.makeText(this, state.successMessage, Toast.LENGTH_SHORT).show();
                 break;
 
@@ -177,9 +209,8 @@ public class ProcessQrActivity extends AppCompatActivity {
         binding.rvItemList.setVisibility(View.GONE);
     }
 
-    private String encodeToBase64(String data) {
-        byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-        return Base64.encodeToString(dataBytes, Base64.NO_WRAP);
+    private void clearEditext(){
+        binding.etCodeQr.setText("");
     }
 
     private void showLogoutConfirmationDialog() {
