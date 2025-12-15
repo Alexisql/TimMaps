@@ -2,7 +2,6 @@ package com.alexis.timmaps.ui.processqr;
 
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,10 +10,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alexis.timmaps.R;
 import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMainBinding;
+import com.alexis.timmaps.ui.processqr.adapter.DataQrAdapter;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -29,6 +30,7 @@ public class ProcessQrActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private ProcessQrViewModel viewModel;
+    private DataQrAdapter dataQrAdapter;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -49,6 +51,7 @@ public class ProcessQrActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this, viewModelFactory).get(ProcessQrViewModel.class);
 
+        setupRecyclerView();
         configScanner();
         setupListeners();
         viewModel.getState().observe(this, this::observeViewModel);
@@ -77,11 +80,37 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void observeViewModel(ProcessQrState state) {
-        if (state instanceof ProcessQrState.Success) {
-            Log.e("Process QR", ((ProcessQrState.Success) state).getQrData().toString());
-        } else if (state instanceof ProcessQrState.Error) {
-            Toast.makeText(this, ((ProcessQrState.Error) state).getMessage(), Toast.LENGTH_SHORT).show();
+        switch (state.status) {
+            case LOADING:
+                hideRecycler();
+                break;
+
+            case QR_PROCESSED:
+                showRecycler();
+                viewModel.insertDataQr(state.qrData.getData());
+                break;
+
+            case QR_LIST_LOADED:
+                showRecycler();
+                dataQrAdapter.submitList(state.qrList);
+                break;
+
+            case OPERATION_SUCCESS:
+                showRecycler();
+                Toast.makeText(this, state.successMessage, Toast.LENGTH_SHORT).show();
+                break;
+
+            case ERROR:
+                showRecycler();
+                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show();
+                break;
         }
+    }
+
+    private void setupRecyclerView() {
+        dataQrAdapter = new DataQrAdapter();
+        binding.rvItemList.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvItemList.setAdapter(dataQrAdapter);
     }
 
     private void configScanner() {
@@ -99,6 +128,16 @@ public class ProcessQrActivity extends AppCompatActivity {
     private void closeScanner() {
         binding.zxingBarcodeScanner.pause();
         binding.processQrFormContainer.setVisibility(View.GONE);
+    }
+
+    private void showRecycler() {
+        binding.progressBar.setVisibility(View.GONE);
+        binding.rvItemList.setVisibility(View.VISIBLE);
+    }
+
+    private void hideRecycler() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.rvItemList.setVisibility(View.GONE);
     }
 
     private String encodeToBase64(String data) {

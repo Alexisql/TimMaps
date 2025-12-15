@@ -3,6 +3,7 @@ package com.alexis.timmaps.di.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.alexis.timmaps.data.local.processqr.dao.BackupDao;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;

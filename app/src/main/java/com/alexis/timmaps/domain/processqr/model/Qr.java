@@ -1,11 +1,11 @@
 package com.alexis.timmaps.domain.processqr.model;
 
-public class ProcessQr {
+public class Qr {
 
     private String correct;
-    private String dataQr;
+    private DataQr dataQr;
 
-    public ProcessQr(String correct, String data) {
+    public Qr(String correct, DataQr data) {
         this.correct = correct;
         this.dataQr = data;
     }
@@ -14,7 +14,7 @@ public class ProcessQr {
         return correct;
     }
 
-    public String getData() {
+    public DataQr getData() {
         return dataQr;
     }
 }

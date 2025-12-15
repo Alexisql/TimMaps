@@ -15,6 +15,7 @@ rxJava = "3.1.12"
 rxAndroid = "3.0.2"
 volley = "1.2.1"
 zxing = "4.3.0"
+sqlite = "2.6.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -35,6 +36,7 @@ rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxJav
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxAndroid" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 zxing = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
+sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "sqlite" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

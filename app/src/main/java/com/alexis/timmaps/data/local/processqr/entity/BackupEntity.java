@@ -1,13 +1,13 @@
-package com.alexis.timmaps.domain.processqr.model;
+package com.alexis.timmaps.data.local.processqr.entity;
 
-public class DataQr {
+public class BackupEntity {
 
     private String label;
     private String lat;
     private String lon;
     private String observation;
 
-    public DataQr(String label, String lat, String lon, String observation) {
+    public BackupEntity(String label, String lat, String lon, String observation) {
         this.label = label;
         this.lat = lat;
         this.lon = lon;

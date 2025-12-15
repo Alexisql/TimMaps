@@ -3,8 +3,8 @@ package com.alexis.timmaps.data.remote.processqr.repository;
 import com.alexis.timmaps.data.remote.processqr.mapper.QrMapper;
 import com.alexis.timmaps.data.remote.processqr.model.QrResponse;
 import com.alexis.timmaps.data.remote.processqr.service.ProcessQrService;
-import com.alexis.timmaps.domain.processqr.model.ProcessQr;
-import com.alexis.timmaps.domain.processqr.repository.IProcessQrRepository;
+import com.alexis.timmaps.domain.processqr.model.Qr;
+import com.alexis.timmaps.domain.processqr.repository.IReadQrRepository;
 
 import org.json.JSONException;
 
@@ -12,17 +12,17 @@ import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Single;
 
-public class ProcessQrRepositoryImpl implements IProcessQrRepository {
+public class ReadQrRepositoryImpl implements IReadQrRepository {
 
     private final ProcessQrService service;
 
     @Inject
-    public ProcessQrRepositoryImpl(ProcessQrService service) {
+    public ReadQrRepositoryImpl(ProcessQrService service) {
         this.service = service;
     }
 
     @Override
-    public Single<ProcessQr> processQr(String codeQr) {
+    public Single<Qr> readQr(String codeQr) {
         return Single.create(emitter -> {
             service.validateCodeQr(codeQr,
                     response -> {

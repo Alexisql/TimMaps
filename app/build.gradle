@@ -59,6 +59,9 @@ dependencies {
 
     //ZXing
     implementation libs.zxing
+
+    //Sqlite
+    implementation libs.sqlite
     
     implementation libs.appcompat
     implementation libs.material

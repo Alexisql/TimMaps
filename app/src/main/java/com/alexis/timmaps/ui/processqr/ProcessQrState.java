@@ -1,30 +1,65 @@
 package com.alexis.timmaps.ui.processqr;
 
-import com.alexis.timmaps.domain.processqr.model.ProcessQr;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.alexis.timmaps.domain.processqr.model.DataQr;
+import com.alexis.timmaps.domain.processqr.model.Qr;
+
+import java.util.List;
 
 public class ProcessQrState {
 
-    public static final class Success extends ProcessQrState {
-        private final ProcessQr qrData;
+    @NonNull
+    public final Status status;
 
-        public Success(ProcessQr qrData) {
-            this.qrData = qrData;
-        }
+    @Nullable
+    public final Qr qrData;
 
-        public ProcessQr getQrData() {
-            return qrData;
-        }
+    @Nullable
+    public final List<DataQr> qrList;
+
+    @Nullable
+    public final String successMessage;
+
+    @Nullable
+    public final String errorMessage;
+
+    private ProcessQrState(@NonNull Status status, @Nullable Qr qrData,
+                           @Nullable List<DataQr> qrList, @Nullable String successMessage,
+                           @Nullable String errorMessage) {
+        this.status = status;
+        this.qrData = qrData;
+        this.qrList = qrList;
+        this.successMessage = successMessage;
+        this.errorMessage = errorMessage;
     }
 
-    public static final class Error extends ProcessQrState {
-        private final String message;
+    public static ProcessQrState loading() {
+        return new ProcessQrState(Status.LOADING, null, null, null, null);
+    }
 
-        public Error(String message) {
-            this.message = message;
-        }
+    public static ProcessQrState qrProcessed(@NonNull Qr qrData) {
+        return new ProcessQrState(Status.QR_PROCESSED, qrData, null, null, null);
+    }
 
-        public String getMessage() {
-            return message;
-        }
+    public static ProcessQrState qrListLoaded(@NonNull List<DataQr> qrList) {
+        return new ProcessQrState(Status.QR_LIST_LOADED, null, qrList, null, null);
+    }
+
+    public static ProcessQrState operationSuccess(@NonNull String message) {
+        return new ProcessQrState(Status.OPERATION_SUCCESS, null, null, message, null);
+    }
+
+    public static ProcessQrState error(@NonNull String message) {
+        return new ProcessQrState(Status.ERROR, null, null, null, message);
+    }
+
+    public enum Status {
+        LOADING,
+        QR_PROCESSED,
+        QR_LIST_LOADED,
+        OPERATION_SUCCESS,
+        ERROR
     }
 }
