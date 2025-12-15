@@ -1,21 +1,13 @@
 package com.alexis.timmaps.ui.login;
 
-import com.alexis.timmaps.domain.login.model.User;
-
 public class LoginState {
 
     public static final class Loading extends LoginState {
     }
 
     public static final class Success extends LoginState {
-        private final User user;
 
-        public Success(User user) {
-            this.user = user;
-        }
-
-        public User getUser() {
-            return user;
+        public Success() {
         }
     }
 

@@ -9,7 +9,7 @@ import com.alexis.timmaps.domain.logout.usecase.LogoutUseCase;
 import com.alexis.timmaps.domain.processqr.model.DataQr;
 import com.alexis.timmaps.domain.processqr.usecase.GetDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.InsertDataQrUseCase;
-import com.alexis.timmaps.domain.processqr.usecase.ReadQrUseCase;
+import com.alexis.timmaps.domain.processqr.usecase.ValidateQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.SyncBackupUseCase;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class ProcessQrViewModel extends ViewModel {
 
-    private final ReadQrUseCase readUseCase;
+    private final ValidateQrUseCase readUseCase;
     private final InsertDataQrUseCase insertUseCase;
     private final LogoutUseCase logoutUseCase;
     private final GetDataQrUseCase getDataUseCase;
@@ -34,7 +34,7 @@ public class ProcessQrViewModel extends ViewModel {
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
-    public ProcessQrViewModel(ReadQrUseCase readUseCase,
+    public ProcessQrViewModel(ValidateQrUseCase readUseCase,
                               InsertDataQrUseCase insertUseCase,
                               LogoutUseCase logoutUseCase,
                               GetDataQrUseCase getDataUseCase,

@@ -1,11 +1,10 @@
 package com.alexis.timmaps.domain.login.usecase;
 
-import com.alexis.timmaps.domain.login.model.User;
 import com.alexis.timmaps.domain.login.repository.IAuthRepository;
 
 import javax.inject.Inject;
 
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Completable;
 
 public class LoginUseCase {
 
@@ -16,7 +15,7 @@ public class LoginUseCase {
         this.repository = repository;
     }
 
-    public Single<User> execute(String username, String password) {
+    public Completable execute(String username, String password) {
         return repository.login(username, password);
     }
 }

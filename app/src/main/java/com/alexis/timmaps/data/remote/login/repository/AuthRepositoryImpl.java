@@ -27,9 +27,10 @@ public class AuthRepositoryImpl implements IAuthRepository {
     }
 
     @Override
-    public Single<User> login(String username, String password) {
+    public Completable login(String username, String password) {
         return signInAnonymously()
-                .andThen(queryUser(username, password));
+                .andThen(queryUser(username, password))
+                .ignoreElement();
     }
 
 

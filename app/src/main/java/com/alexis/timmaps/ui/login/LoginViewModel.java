@@ -42,7 +42,7 @@ public class LoginViewModel extends ViewModel {
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
-                                user -> state.setValue(new LoginState.Success(user)),
+                                () -> state.setValue(new LoginState.Success()),
                                 throwable -> state.setValue(new LoginState.Error(throwable.getMessage()))
                         )
         );
