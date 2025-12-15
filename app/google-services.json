@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "660035006668",
+    "project_id": "candidatosalexix",
+    "storage_bucket": "candidatosalexix.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660035006668:android:ddeef0d1e593a1c323d269",
+        "android_client_info": {
+          "package_name": "com.alexis.timmaps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa3bLB4jKLbW7mCeokviYm1YI1CYRt62A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
