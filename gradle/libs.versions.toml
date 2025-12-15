@@ -16,6 +16,7 @@ rxAndroid = "3.0.2"
 volley = "1.2.1"
 zxing = "4.3.0"
 sqlite = "2.6.2"
+maps = "18.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -37,6 +38,7 @@ rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = 
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 zxing = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
 sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "sqlite" }
+maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "maps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
