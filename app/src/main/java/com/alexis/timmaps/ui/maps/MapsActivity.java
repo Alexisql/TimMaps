@@ -1,8 +1,8 @@
 package com.alexis.timmaps.ui.maps;
 
-import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,8 +14,6 @@ import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMapBinding;
 import com.alexis.timmaps.domain.maps.model.Location;
 import com.alexis.timmaps.domain.maps.model.Route;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,8 +33,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ActivityMapBinding binding;
     private GoogleMap googleMap;
     private MapsViewModel viewModel;
-    private Location destination;
-    private FusedLocationProviderClient fusedLocationClient;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -49,47 +45,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         binding = ActivityMapBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        getDestination();
-        viewModel = new ViewModelProvider(this, viewModelFactory).get(MapsViewModel.class);
-        viewModel.getState().observe(this, this::observeViewModel);
         binding.mapView.onCreate(savedInstanceState);
         binding.mapView.getMapAsync(this);
+
+        viewModel = new ViewModelProvider(this, viewModelFactory).get(MapsViewModel.class);
+        viewModel.getState().observe(this, this::observeViewModel);
+        viewModel.getRoute(getDestination());
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
-        getCurrentLocation();
     }
 
     private void observeViewModel(MapsState state) {
-        if (state instanceof MapsState.Success) {
+        if (state instanceof MapsState.Loading) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+        } else if (state instanceof MapsState.Success) {
             drawRoute(((MapsState.Success) state).route);
+            binding.progressBar.setVisibility(View.GONE);
         } else if (state instanceof MapsState.Error) {
+            binding.progressBar.setVisibility(View.GONE);
             Toast.makeText(this, ((MapsState.Error) state).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        Location myLocation = new Location(location.getLatitude(), location.getLongitude());
-                        googleMap.setMyLocationEnabled(true);
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 15f));
-                        viewModel.getRoute(myLocation, destination);
-                    } else {
-                        Toast.makeText(this, "No se pudo obtener la ubicación actual.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void getDestination() {
-        destination = new Location(
+    private Location getDestination() {
+        return new Location(
                 Double.parseDouble(Objects.requireNonNull(
                         getIntent().getStringExtra(Constants.EXTRA_LAT), "0.0")),
                 Double.parseDouble(Objects.requireNonNull(
@@ -104,11 +86,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .width(12f)
                 .color(ContextCompat.getColor(this, R.color.primary_color));
 
-        googleMap.addPolyline(polylineOptions);
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(destination.getLatitude(), destination.getLongitude()))
-                .title("Destino"));
-
         LatLng startPoint = decodedPath.get(0);
         LatLng endPoint = decodedPath.get(decodedPath.size() - 1);
 
@@ -118,6 +95,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLngBounds bounds = builder.build();
 
         int padding = 150;
+        googleMap.addPolyline(polylineOptions);
+        googleMap.addMarker(new MarkerOptions()
+                .position(endPoint)
+                .title("Destino"));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
     }
 

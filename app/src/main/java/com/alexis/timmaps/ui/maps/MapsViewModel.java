@@ -30,16 +30,16 @@ public class MapsViewModel extends ViewModel {
         this.mapsUseCase = mapsUseCase;
         this.ioScheduler = ioScheduler;
         this.mainScheduler = mainScheduler;
-
     }
 
     public LiveData<MapsState> getState() {
         return state;
     }
 
-    public void getRoute(Location origen, Location destination) {
+    public void getRoute(Location destination) {
+        state.setValue(new MapsState.Loading());
         disposables.add(
-                mapsUseCase.execute(origen, destination)
+                mapsUseCase.execute(destination)
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
@@ -47,6 +47,11 @@ public class MapsViewModel extends ViewModel {
                                 throwable -> state.setValue(new MapsState.Error(throwable.getMessage()))
                         )
         );
+    }
+
+    @Override
+    protected void onCleared() {
+        disposables.clear();
     }
 
 }

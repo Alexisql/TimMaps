@@ -1,9 +1,12 @@
 package com.alexis.timmaps.ui.processqr;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -74,7 +77,7 @@ public class ProcessQrActivity extends AppCompatActivity {
                 if (isGranted) {
                     startScanner();
                 } else {
-                    Toast.makeText(this, "El permiso de cámara es obligatorio para escanear el código QR.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "El permiso de cámara es obligatorio para escanear el código QR.", Toast.LENGTH_SHORT).show();
                     closeScanner();
                 }
             });
@@ -82,9 +85,13 @@ public class ProcessQrActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestLocationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    navigateToMap(location);
+                    if (isGpsEnabled()) {
+                        navigateToMap(location);
+                    } else {
+                        showGpsActivationDialog();
+                    }
                 } else {
-                    Toast.makeText(this, "El permiso de ubicación es necesario para ver la ruta.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "El permiso de ubicación es necesario para ver la ruta.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -239,7 +246,8 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED) {
             startScanner();
         } else {
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
@@ -247,12 +255,37 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestLocationPermission(DataQr location) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && isGpsEnabled()) {
             navigateToMap(location);
         } else {
             requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
+
+    private boolean isGpsEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private void showGpsActivationDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("GPS Desactivado")
+                .setMessage("Para ver la ruta en el mapa, necesitas activar el GPS. ¿Deseas activarlo ahora?")
+                .setPositiveButton("Activar", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "El GPS es necesario para mostrar la ubicación",
+                            Toast.LENGTH_LONG).show();
+                })
+                .show();
+    }
+
 
     private void navigateToMap(DataQr dataQr) {
         Intent intent = new Intent(this, MapsActivity.class);

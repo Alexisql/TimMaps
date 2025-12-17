@@ -22,7 +22,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class ProcessQrViewModel extends ViewModel {
 
-    private final ValidateQrUseCase readUseCase;
+    private final ValidateQrUseCase validateQrUseCase;
     private final InsertDataQrUseCase insertUseCase;
     private final LogoutUseCase logoutUseCase;
     private final GetDataQrUseCase getDataUseCase;
@@ -34,14 +34,14 @@ public class ProcessQrViewModel extends ViewModel {
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
-    public ProcessQrViewModel(ValidateQrUseCase readUseCase,
+    public ProcessQrViewModel(ValidateQrUseCase validateQrUseCase,
                               InsertDataQrUseCase insertUseCase,
                               LogoutUseCase logoutUseCase,
                               GetDataQrUseCase getDataUseCase,
                               SyncBackupUseCase syncBackupUseCase,
                               @Named(Qualifiers.IO_SCHEDULER) Scheduler ioScheduler,
                               @Named(Qualifiers.MAIN_SCHEDULER) Scheduler mainScheduler) {
-        this.readUseCase = readUseCase;
+        this.validateQrUseCase = validateQrUseCase;
         this.insertUseCase = insertUseCase;
         this.logoutUseCase = logoutUseCase;
         this.getDataUseCase = getDataUseCase;
@@ -58,7 +58,7 @@ public class ProcessQrViewModel extends ViewModel {
     public void processQr(String codeQr) {
         state.setValue(ProcessQrState.loading());
         disposables.add(
-                readUseCase.execute(codeQr)
+                validateQrUseCase.execute(codeQr)
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(

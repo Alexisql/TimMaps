@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -58,4 +60,9 @@ public class AppModule {
         return Volley.newRequestQueue(context);
     }
 
+    @Provides
+    @Singleton
+    FusedLocationProviderClient provideFusedLocationProviderClient(Context context) {
+        return LocationServices.getFusedLocationProviderClient(context);
+    }
 }

@@ -3,6 +3,8 @@ package com.alexis.timmaps.ui.maps;
 import com.alexis.timmaps.domain.maps.model.Route;
 
 public class MapsState {
+    public static final class Loading extends MapsState {
+    }
 
     public static final class Success extends MapsState {
         public final Route route;
