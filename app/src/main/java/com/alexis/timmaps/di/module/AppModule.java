@@ -18,6 +18,7 @@ import dagger.Provides;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 @Module
 public class AppModule {
@@ -64,5 +65,11 @@ public class AppModule {
     @Singleton
     FusedLocationProviderClient provideFusedLocationProviderClient(Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
+    }
+
+    @Provides
+    @Singleton
+    BehaviorSubject<Object> provideDatabaseChangesSubject() {
+        return BehaviorSubject.createDefault(new Object());
     }
 }
