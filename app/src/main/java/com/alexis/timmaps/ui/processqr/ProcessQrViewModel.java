@@ -9,8 +9,8 @@ import com.alexis.timmaps.domain.logout.usecase.LogoutUseCase;
 import com.alexis.timmaps.domain.processqr.model.DataQr;
 import com.alexis.timmaps.domain.processqr.usecase.GetDataQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.InsertDataQrUseCase;
-import com.alexis.timmaps.domain.processqr.usecase.ValidateQrUseCase;
 import com.alexis.timmaps.domain.processqr.usecase.SyncBackupUseCase;
+import com.alexis.timmaps.domain.processqr.usecase.ValidateQrUseCase;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class ProcessQrViewModel extends ViewModel {
     private final Scheduler ioScheduler;
     private final Scheduler mainScheduler;
 
-    private final MutableLiveData<ProcessQrState> state = new MutableLiveData<>(ProcessQrState.loading());
+    private final MutableLiveData<ProcessQrState> state = new MutableLiveData<>();
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
@@ -56,61 +56,61 @@ public class ProcessQrViewModel extends ViewModel {
     }
 
     public void processQr(String codeQr) {
-        state.setValue(ProcessQrState.loading());
+        state.setValue(new ProcessQrState.Loading());
         disposables.add(
                 validateQrUseCase.execute(codeQr)
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
                                 qrData ->
-                                        state.setValue(ProcessQrState.qrProcessed(qrData)),
+                                        state.setValue(new ProcessQrState.QrProcessed(qrData)),
                                 throwable ->
-                                        state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                                        state.setValue(new ProcessQrState.Error(getMessageError(throwable)))
                         )
         );
     }
 
     public void getAllQr() {
-        state.setValue(ProcessQrState.loading());
+        state.setValue(new ProcessQrState.Loading());
         disposables.add(
                 getDataUseCase.execute()
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
                                 qrList -> {
-                                    state.setValue(ProcessQrState.qrListLoaded(qrList));
+                                    state.setValue(new ProcessQrState.QrListLoaded(qrList));
                                     syncBackup(qrList);
                                 },
                                 throwable ->
-                                        state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                                        state.setValue(new ProcessQrState.Error(getMessageError(throwable)))
                         )
         );
     }
 
     public void insertDataQr(DataQr dataQr) {
-        state.setValue(ProcessQrState.loading());
+        state.setValue(new ProcessQrState.Loading());
         disposables.add(
                 insertUseCase.execute(dataQr)
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
-                                () -> state.setValue(ProcessQrState.operationSuccess("Dato insertado correctamente.")),
+                                () -> state.setValue(new ProcessQrState.OperationSuccess("Dato insertado correctamente.")),
                                 throwable ->
-                                        state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                                        state.setValue(new ProcessQrState.Error(getMessageError(throwable)))
                         )
         );
     }
 
     public void logout() {
-        state.setValue(ProcessQrState.loading());
+        state.setValue(new ProcessQrState.Loading());
         disposables.add(
                 logoutUseCase.execute()
                         .subscribeOn(ioScheduler)
                         .observeOn(mainScheduler)
                         .subscribe(
-                                () -> state.setValue(ProcessQrState.operationSuccess("Todos los datos han sido eliminados.")),
+                                () -> state.setValue(new ProcessQrState.OperationSuccess("Todos los datos han sido eliminados.")),
                                 throwable ->
-                                        state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                                        state.setValue(new ProcessQrState.Error(getMessageError(throwable)))
                         )
         );
     }
@@ -123,9 +123,9 @@ public class ProcessQrViewModel extends ViewModel {
                             .subscribeOn(ioScheduler)
                             .observeOn(mainScheduler)
                             .subscribe(
-                                    () -> state.setValue(ProcessQrState.operationSuccess("Sincronizacion completada.")),
+                                    () -> state.setValue(new ProcessQrState.OperationSuccess("Sincronizacion completada.")),
                                     throwable ->
-                                            state.setValue(ProcessQrState.error(getMessageError(throwable)))
+                                            state.setValue(new ProcessQrState.Error(getMessageError(throwable)))
                             )
             );
         }

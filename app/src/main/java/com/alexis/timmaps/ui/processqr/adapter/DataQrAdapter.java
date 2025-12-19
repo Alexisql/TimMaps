@@ -13,11 +13,13 @@ import java.util.function.Consumer;
 
 public class DataQrAdapter extends ListAdapter<DataQr, DataQrViewHolder> {
 
-    private final Consumer<DataQr> onMapClick;
+    private final Runnable onMapClick;
+    private final Consumer<DataQr> onCardClick;
 
-    public DataQrAdapter(Consumer<DataQr> onMapClick) {
+    public DataQrAdapter(Runnable onMapClick, Consumer<DataQr> onCardClick) {
         super(new DataQrDiffUtil());
         this.onMapClick = onMapClick;
+        this.onCardClick = onCardClick;
     }
 
     @NonNull
@@ -34,6 +36,6 @@ public class DataQrAdapter extends ListAdapter<DataQr, DataQrViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DataQrViewHolder holder, int position) {
         DataQr currentDataQr = getItem(position);
-        holder.bind(currentDataQr, onMapClick);
+        holder.bind(currentDataQr, onMapClick, onCardClick);
     }
 }
