@@ -1,10 +1,11 @@
-package com.alexis.timmaps.data.remote.processqr.service;
+package com.alexis.timmaps.data.remote.processqr.repository;
 
 import android.util.Base64;
 
 import com.alexis.timmaps.data.remote.processqr.mapper.QrMapper;
 import com.alexis.timmaps.data.remote.processqr.model.QrResponse;
 import com.alexis.timmaps.domain.processqr.model.Qr;
+import com.alexis.timmaps.domain.processqr.repository.IValidateQrRepository;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,16 +22,17 @@ import javax.inject.Singleton;
 import io.reactivex.rxjava3.core.Single;
 
 @Singleton
-public class ValidateQrService {
+public class ValidateQrRepositoryImpl implements IValidateQrRepository {
 
     private static final String END_POINT = "https://noderedtest.coordinadora.com/api/v1/validar";
     private final RequestQueue queue;
 
     @Inject
-    public ValidateQrService(RequestQueue queue) {
+    public ValidateQrRepositoryImpl(RequestQueue queue) {
         this.queue = queue;
     }
 
+    @Override
     public Single<Qr> validateCodeQr(String codeQr) {
         return Single.create(emitter -> {
 
@@ -65,7 +67,8 @@ public class ValidateQrService {
         });
     }
 
-    private String encodeToBase64(String data) {
+    @Override
+    public String encodeToBase64(String data) {
         byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
         return Base64.encodeToString(dataBytes, Base64.NO_WRAP);
     }

@@ -1,32 +1,22 @@
 package com.alexis.timmaps.ui.maps;
 
-import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.alexis.timmaps.R;
 import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMapBinding;
-import com.alexis.timmaps.domain.maps.model.Location;
-import com.alexis.timmaps.domain.maps.model.Route;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+import com.alexis.timmaps.ui.maps.state.MapsState;
+import com.alexis.timmaps.ui.maps.state.MarkersState;
+import com.alexis.timmaps.ui.maps.state.RouteState;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.PolyUtil;
-
-import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -35,8 +25,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ActivityMapBinding binding;
     private GoogleMap googleMap;
     private MapsViewModel viewModel;
-    private Location destination;
-    private FusedLocationProviderClient fusedLocationClient;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -49,76 +37,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         binding = ActivityMapBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        getDestination();
-        viewModel = new ViewModelProvider(this, viewModelFactory).get(MapsViewModel.class);
-        viewModel.getState().observe(this, this::observeViewModel);
         binding.mapView.onCreate(savedInstanceState);
         binding.mapView.getMapAsync(this);
+
+        viewModel = new ViewModelProvider(this, viewModelFactory).get(MapsViewModel.class);
+        viewModel.getState().observe(this, this::observeViewModel);
+        viewModel.initialize(getIntent());
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
-        getCurrentLocation();
     }
 
     private void observeViewModel(MapsState state) {
-        if (state instanceof MapsState.Success) {
-            drawRoute(((MapsState.Success) state).route);
+        binding.progressBar.setVisibility(state instanceof MapsState.Loading ? View.VISIBLE : View.GONE);
+
+        if (state instanceof MapsState.RouteLoaded) {
+            drawRoute(((MapsState.RouteLoaded) state).routeState);
+        } else if (state instanceof MapsState.MarkersLoaded) {
+            showMarkers(((MapsState.MarkersLoaded) state).markersState);
         } else if (state instanceof MapsState.Error) {
-            Toast.makeText(this, ((MapsState.Error) state).getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, ((MapsState.Error) state).message, Toast.LENGTH_SHORT).show();
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        Location myLocation = new Location(location.getLatitude(), location.getLongitude());
-                        googleMap.setMyLocationEnabled(true);
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 15f));
-                        viewModel.getRoute(myLocation, destination);
-                    } else {
-                        Toast.makeText(this, "No se pudo obtener la ubicación actual.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void drawRoute(RouteState routeState) {
+        if (googleMap == null) return;
+        googleMap.clear();
+        googleMap.addPolyline(routeState.polylineOptions);
+        googleMap.addMarker(routeState.endMarker);
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(routeState.bounds, 150));
+
     }
 
-    private void getDestination() {
-        destination = new Location(
-                Double.parseDouble(Objects.requireNonNull(
-                        getIntent().getStringExtra(Constants.EXTRA_LAT), "0.0")),
-                Double.parseDouble(Objects.requireNonNull(
-                        getIntent().getStringExtra(Constants.EXTRA_LON), "0.0"))
-        );
-    }
-
-    private void drawRoute(Route route) {
-        List<LatLng> decodedPath = PolyUtil.decode(route.getEncodedPolyline());
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .addAll(decodedPath)
-                .width(12f)
-                .color(ContextCompat.getColor(this, R.color.primary_color));
-
-        googleMap.addPolyline(polylineOptions);
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(destination.getLatitude(), destination.getLongitude()))
-                .title("Destino"));
-
-        LatLng startPoint = decodedPath.get(0);
-        LatLng endPoint = decodedPath.get(decodedPath.size() - 1);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(startPoint);
-        builder.include(endPoint);
-        LatLngBounds bounds = builder.build();
-
-        int padding = 150;
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+    private void showMarkers(MarkersState markersState) {
+        if (googleMap == null) return;
+        googleMap.clear();
+        for (MarkerOptions marker : markersState.markerList) {
+            googleMap.addMarker(marker);
+        }
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(markersState.bounds, 150));
     }
 
     @Override

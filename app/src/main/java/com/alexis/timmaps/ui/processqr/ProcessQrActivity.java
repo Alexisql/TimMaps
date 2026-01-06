@@ -1,9 +1,12 @@
 package com.alexis.timmaps.ui.processqr;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -22,6 +25,7 @@ import com.alexis.timmaps.TimMapsApp;
 import com.alexis.timmaps.databinding.ActivityMainBinding;
 import com.alexis.timmaps.databinding.DialogConfirmLogoutBinding;
 import com.alexis.timmaps.domain.processqr.model.DataQr;
+import com.alexis.timmaps.domain.processqr.model.Qr;
 import com.alexis.timmaps.ui.login.LoginActivity;
 import com.alexis.timmaps.ui.maps.Constants;
 import com.alexis.timmaps.ui.maps.MapsActivity;
@@ -33,6 +37,7 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -74,7 +79,7 @@ public class ProcessQrActivity extends AppCompatActivity {
                 if (isGranted) {
                     startScanner();
                 } else {
-                    Toast.makeText(this, "El permiso de cámara es obligatorio para escanear el código QR.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "El permiso de cámara es obligatorio para escanear el código QR.", Toast.LENGTH_SHORT).show();
                     closeScanner();
                 }
             });
@@ -82,9 +87,13 @@ public class ProcessQrActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestLocationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    navigateToMap(location);
+                    if (isGpsEnabled()) {
+                        navigateToMap(location);
+                    } else {
+                        showGpsActivationDialog();
+                    }
                 } else {
-                    Toast.makeText(this, "El permiso de ubicación es necesario para ver la ruta.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "El permiso de ubicación es necesario para ver la ruta.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -145,41 +154,38 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void observeViewModel(ProcessQrState state) {
-        switch (state.status) {
-            case LOADING:
-                hideRecycler();
-                break;
+        binding.progressBar.setVisibility(state instanceof ProcessQrState.Loading ? View.VISIBLE : View.GONE);
+        binding.rvItemList.setVisibility(state instanceof ProcessQrState.Loading ? View.GONE : View.VISIBLE);
 
-            case QR_PROCESSED:
-                showRecycler();
-                viewModel.insertDataQr(state.qrData.getData());
-                break;
-
-            case QR_LIST_LOADED:
-                showRecycler();
-                dataQrAdapter.submitList(state.qrList);
-                break;
-
-            case OPERATION_SUCCESS:
-                showRecycler();
-                clearEditText();
-                Toast.makeText(this, state.successMessage, Toast.LENGTH_SHORT).show();
-                break;
-
-            case ERROR:
-                showRecycler();
-                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show();
-                break;
+        if (state instanceof ProcessQrState.QrProcessed) {
+            Qr qrData = ((ProcessQrState.QrProcessed) state).qrData;
+            viewModel.insertDataQr(qrData.getData());
+        } else if (state instanceof ProcessQrState.QrListLoaded) {
+            List<DataQr> qrList = ((ProcessQrState.QrListLoaded) state).qrList;
+            dataQrAdapter.submitList(qrList);
+        } else if (state instanceof ProcessQrState.OperationSuccess) {
+            clearEditText();
+            String message = ((ProcessQrState.OperationSuccess) state).message;
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        } else if (state instanceof ProcessQrState.Error) {
+            String message = ((ProcessQrState.Error) state).message;
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
     }
 
     private void setupRecyclerView() {
-        dataQrAdapter = new DataQrAdapter(dataQr -> {
-            location = dataQr;
-            checkAndRequestLocationPermission(location);
-        });
+        dataQrAdapter = new DataQrAdapter(this::showPositions, this::showRoute);
         binding.rvItemList.setLayoutManager(new LinearLayoutManager(this));
         binding.rvItemList.setAdapter(dataQrAdapter);
+    }
+
+    private void showPositions() {
+        navigateToMap(null);
+    }
+
+    private void showRoute(DataQr dataQr) {
+        location = dataQr;
+        checkAndRequestLocationPermission(location);
     }
 
     private void configScanner() {
@@ -197,16 +203,6 @@ public class ProcessQrActivity extends AppCompatActivity {
     private void closeScanner() {
         binding.zxingBarcodeScanner.pause();
         binding.processQrFormContainer.setVisibility(View.GONE);
-    }
-
-    private void showRecycler() {
-        binding.progressBar.setVisibility(View.GONE);
-        binding.rvItemList.setVisibility(View.VISIBLE);
-    }
-
-    private void hideRecycler() {
-        binding.progressBar.setVisibility(View.VISIBLE);
-        binding.rvItemList.setVisibility(View.GONE);
     }
 
     private void clearEditText() {
@@ -239,7 +235,8 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED) {
             startScanner();
         } else {
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
@@ -247,17 +244,44 @@ public class ProcessQrActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestLocationPermission(DataQr location) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && isGpsEnabled()) {
             navigateToMap(location);
         } else {
             requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
 
+    private boolean isGpsEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private void showGpsActivationDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("GPS Desactivado")
+                .setMessage("Para ver la ruta en el mapa, necesitas activar el GPS. ¿Deseas activarlo ahora?")
+                .setPositiveButton("Activar", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                    Toast.makeText(this, "El GPS es necesario para mostrar la ubicación",
+                            Toast.LENGTH_LONG).show();
+                })
+                .show();
+    }
+
+
     private void navigateToMap(DataQr dataQr) {
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra(Constants.EXTRA_LAT, dataQr.getLat());
-        intent.putExtra(Constants.EXTRA_LON, dataQr.getLon());
+        if (dataQr != null) {
+            intent.putExtra(Constants.EXTRA_LAT, dataQr.getLat());
+            intent.putExtra(Constants.EXTRA_LON, dataQr.getLon());
+        }
         startActivity(intent);
     }
 }

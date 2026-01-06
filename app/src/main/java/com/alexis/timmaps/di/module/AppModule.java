@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -16,6 +18,7 @@ import dagger.Provides;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 @Module
 public class AppModule {
@@ -58,4 +61,15 @@ public class AppModule {
         return Volley.newRequestQueue(context);
     }
 
+    @Provides
+    @Singleton
+    FusedLocationProviderClient provideFusedLocationProviderClient(Context context) {
+        return LocationServices.getFusedLocationProviderClient(context);
+    }
+
+    @Provides
+    @Singleton
+    BehaviorSubject<Object> provideDatabaseChangesSubject() {
+        return BehaviorSubject.createDefault(new Object());
+    }
 }

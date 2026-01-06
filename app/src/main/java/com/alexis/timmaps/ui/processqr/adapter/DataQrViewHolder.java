@@ -19,11 +19,14 @@ public class DataQrViewHolder extends RecyclerView.ViewHolder {
         binding = ItemDataQrBinding.bind(itemView);
     }
 
-    public void bind(final DataQr dataQr, final Consumer<DataQr> onMapClick) {
+    public void bind(final DataQr dataQr, final Runnable onMapClick, final Consumer<DataQr> onCardClick) {
         binding.tvLabel1d.setText(dataQr.getLabel());
         binding.tvObservationValue.setText(dataQr.getObservation());
+        binding.linearContent.setOnClickListener(v -> {
+            onCardClick.accept(dataQr);
+        });
         binding.ivMapIcon.setOnClickListener(v -> {
-            onMapClick.accept(dataQr);
+            onMapClick.run();
         });
     }
 }
